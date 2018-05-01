@@ -18,7 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller =
       new TextEditingController(text: 'kuronekomichael');
 
-  static const iconWidth = 100.0;
+  static const iconWidth = 80.0;
 
   @override
   Widget build(BuildContext context) {
@@ -113,11 +113,34 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onSubmitted(String _) => _gotoNext();
 
   void _gotoNext() {
-    Navigator.of(context).push(
-          new MaterialPageRoute(
-            builder: (BuildContext context) => new ConfirmPage(),
-          ),
-        );
+//    Navigator.of(context).push(
+//          new MaterialPageRoute(
+//            builder: (BuildContext context) => new ConfirmPage(),
+//          ),
+//        );
+    Navigator.push(
+      context,
+      new PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (BuildContext context, _, __) => new Center(
+              child: new ConfirmPage(),
+            ),
+        transitionsBuilder:
+            (_, Animation<double> animation, __, Widget child) =>
+                new FadeTransition(
+                  opacity: animation,
+                  child: new RotationTransition(
+                    turns: new Tween<double>(
+                      begin: 0.5,
+                      end: 1.0,
+                    ).animate(
+                      animation,
+                    ),
+                    child: child,
+                  ),
+                ),
+      ),
+    );
 //    String username = _controller.text.toLowerCase();
 //
 //    _fetch(username).then((bool isValid) {
