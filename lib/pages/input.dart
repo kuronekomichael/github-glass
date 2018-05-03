@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:github_grass/api/github.dart';
@@ -7,17 +8,16 @@ import 'package:scoped_model/scoped_model.dart';
 
 class InputPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return new ScopedModelDescendant<GitHubUser>(
-      builder: (context, child, model) => new _InnerInputPage(user: model),
-    );
-  }
+  Widget build(BuildContext context) => new ScopedModelDescendant<GitHubUser>(
+        builder: (context, child, model) => new _InnerInputPage(user: model),
+      );
 }
 
+@immutable
 class _InnerInputPage extends StatefulWidget {
   final GitHubUser user;
 
-  _InnerInputPage({this.user});
+  const _InnerInputPage({this.user});
 
   @override
   _InputPageState createState() => new _InputPageState(user: user);

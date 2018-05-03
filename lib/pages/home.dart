@@ -23,9 +23,7 @@ class _ContributionTile {
   _ContributionTile(this.yearMonth) : contributions = [];
 
   @override
-  String toString() {
-    return '${yearMonth}:' + contributions.length.toString();
-  }
+  String toString() => '${yearMonth}:' + contributions.length.toString();
 }
 
 class _MyHomePageState extends State<_InnerMyHomePage> {
@@ -37,7 +35,7 @@ class _MyHomePageState extends State<_InnerMyHomePage> {
         .fold(<_ContributionTile>[],
             (List<_ContributionTile> list, Contribution contib) {
           String key = '${contib.year}-${contib.month}';
-          _ContributionTile tile = null;
+          _ContributionTile tile;
           if (!list.any((c) => c.yearMonth == key)) {
             tile = new _ContributionTile(key);
             list.add(tile);
@@ -58,7 +56,11 @@ class _MyHomePageState extends State<_InnerMyHomePage> {
         title: new Text('GitHub Grass'),
         actions: <Widget>[
           new IconButton(
-              icon: new Icon(Icons.refresh), onPressed: () => model.update())
+            icon: new Icon(Icons.refresh),
+            onPressed: () {
+              model.update();
+            },
+          )
         ],
       ),
       body: new ListView.builder(
@@ -92,8 +94,6 @@ class _MyHomePageState extends State<_InnerMyHomePage> {
 
   Widget _createIdentityWidget() {
     DateTime today = new DateTime.now();
-    String dateSlug =
-        "${today.year.toString()}-${today.month.toString().padLeft(2,'0')}-${today.day.toString().padLeft(2,'0')}";
 
     Contribution c = model.contributions.firstWhere((c) =>
         c.year == today.year && c.month == today.month && c.day == today.day);
