@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:github_grass/pages/export.dart';
 import 'package:http/http.dart' as http;
-//import 'package:github_grass/models/user.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -20,12 +20,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   static const iconWidth = 80.0;
 
+  String _flavor = '(unknown)';
+
+  @override
+  void initState() {
+    super.initState();
+
+    const MethodChannel('flavor').invokeMethod('getFlavor').then(
+      (Object flavor) {
+        setState(() {
+          _flavor = flavor;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     isNameInputed = _controller.text.isNotEmpty;
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Github Grass'),
+        title: new Text(_flavor),
       ),
       body: new Center(
         child: new Column(
