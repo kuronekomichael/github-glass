@@ -1,7 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:scoped_model/scoped_model.dart';
 // avator icon url = https://avatars.githubusercontent.com/<username>
 //ex. https://avatars.githubusercontent.com/kuronekomichael
@@ -16,31 +12,57 @@ class Contribution {
   final int value;
 
   Contribution({this.year, this.month, this.day, this.value});
+
+  @override
+  String toString() => '${year}-${month}-${day}: ${value}';
 }
 
 class GitHubUser extends Model {
-  final String username;
-  Image image;
-  bool isValid = false;
+  String username;
+  //Image image;
   List<Contribution> contributions = List<Contribution>();
 
-  GitHubUser({this.username}) {
-    image = new Image.network(
-      'https://avatars.githubusercontent.com/${username}',
-    );
-    _fetch().then((bool isValid) {
-      isValid = true;
-      notifyListeners();
-    });
+  final RegExp dateRegex = new RegExp('^(\\d+)[-_/](\\d+)[-_/](\\d+)\$');
+
+  void update() {
+    //TODO: GitHubAPIから取り直す予定
+    notifyListeners();
   }
 
-  Future<bool> _fetch() async {
-    final http.Response response =
-        await http.get('https://github.com/users/${username}/contributions');
-    if (response.statusCode != 200) {
-      return false;
-    }
-    //TODO: response.bodyを解析して、this.contributionsへ格納する
-    return true;
+  void setIdentity(String newUsername, Map<String, int> newContributions) {
+    username = newUsername;
+//    image = new Image.network(
+//      'https://avatars.githubusercontent.com/${username}',
+//    );
+
+    // all clear
+    contributions.clear();
+
+    // re-set
+    newContributions.forEach((String date, int value) {
+      print(date);
+      Match matched = dateRegex.firstMatch(date);
+      if (matched == null) {
+        throw new Exception('Error on setting to contibutions');
+      }
+      print(matched);
+      Contribution contribution = new Contribution(
+        year: int.parse(matched.group(1)),
+        month: int.parse(matched.group(2)),
+        day: int.parse(matched.group(3)),
+        value: value,
+      );
+      contributions.add(contribution);
+    });
+
+//    contributions.sort((c1, c2) {
+//      var r = c2.year.compareTo(c1.year);
+//      if (r != 0) return r;
+//      r = c2.month.compareTo(c1.month);
+//      if (r != 0) return r;
+//      return c2.day.compareTo(c1.day);
+//    });
+
+    notifyListeners();
   }
 }

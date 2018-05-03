@@ -1,179 +1,136 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:github_grass/pages/export.dart';
-import 'package:http/http.dart' as http;
+import 'package:github_grass/models/user.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  Widget build(BuildContext context) => new ScopedModelDescendant<GitHubUser>(
+      builder: (context, child, model) => new _InnerMyHomePage(model));
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  bool isNameInputed = false;
-  bool isValidUser = false;
-  String avatorUrl = '';
-
-  final TextEditingController _controller =
-      new TextEditingController(text: 'kuronekomichael');
-
-  static const iconWidth = 80.0;
-
-  String _flavor = '(unknown)';
+class _InnerMyHomePage extends StatefulWidget {
+  final GitHubUser model;
+  const _InnerMyHomePage(this.model);
 
   @override
-  void initState() {
-    super.initState();
+  _MyHomePageState createState() => new _MyHomePageState(model);
+}
 
-    const MethodChannel('flavor').invokeMethod('getFlavor').then(
-      (Object flavor) {
-        setState(() {
-          _flavor = flavor;
-        });
-      },
-    );
+class _ContributionTile {
+  final String yearMonth;
+  final List<int> contributions;
+
+  _ContributionTile(this.yearMonth) : contributions = [];
+
+  @override
+  String toString() {
+    return '${yearMonth}:' + contributions.length.toString();
+  }
+}
+
+class _MyHomePageState extends State<_InnerMyHomePage> {
+  final GitHubUser model;
+  List<_ContributionTile> monthlyContributions = [];
+
+  _MyHomePageState(this.model) {
+    monthlyContributions = model.contributions
+        .fold(<_ContributionTile>[],
+            (List<_ContributionTile> list, Contribution contib) {
+          String key = '${contib.year}-${contib.month}';
+          _ContributionTile tile = null;
+          if (!list.any((c) => c.yearMonth == key)) {
+            tile = new _ContributionTile(key);
+            list.add(tile);
+          } else {
+            tile = list.firstWhere((c) => c.yearMonth == key);
+          }
+          tile.contributions.add(contib.value);
+          return list;
+        })
+        .reversed
+        .toList();
+    //monthlyContributions.reversed.toList();
   }
 
   @override
-  Widget build(BuildContext context) {
-    isNameInputed = _controller.text.isNotEmpty;
-    return new Scaffold(
+  Widget build(BuildContext context) => new Scaffold(
       appBar: new AppBar(
-        title: new Text(_flavor),
+        title: new Text('GitHub Grass'),
+        actions: <Widget>[
+          new IconButton(
+              icon: new Icon(Icons.refresh), onPressed: () => model.update())
+        ],
       ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            isValidUser
-                ? new Image.network(
-                    avatorUrl,
-                    width: iconWidth,
-                  )
-                : new Image.asset(
-                    'images/github.png',
-                    width: iconWidth,
-                  ),
-            new Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: new Text(
-                'Please your github name:',
-              ),
-            ),
-            new Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50.0),
-              child: new TextField(
-                onSubmitted: _onSubmitted,
-                onChanged: _onChanged,
-                controller: _controller,
-                autofocus: true,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            new Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: isValidUser
-                  ? new Column(
-                      children: <Widget>[
-                        new Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            new Padding(
-                              padding: const EdgeInsets.only(right: 50.0),
-                              child: new FloatingActionButton(
-                                backgroundColor: Colors.red,
-                                //icon: new Icon(Icons.navigate_next),
-                                onPressed: null,
-                                mini: true,
-                                child: new Icon(Icons.clear),
-                              ),
-                            ),
-                            new FloatingActionButton(
-                              backgroundColor: Colors.green,
-                              //icon: new Icon(Icons.navigate_next),
-                              onPressed: null,
-                              mini: true,
-                              child: new Icon(Icons.check),
-                            ),
-                          ],
+      body: new ListView.builder(
+        itemCount: monthlyContributions.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == 0) {
+            return _createIdentityWidget();
+          }
+          return new Column(
+            children: <Widget>[
+              new Text(monthlyContributions[index - 1].yearMonth),
+              new Row(
+                children: monthlyContributions[index - 1].contributions.map(
+                  (c) {
+                    return new Flexible(
+                      flex: 1,
+                      child: new Text(
+                        c.toString(),
+                        style: new TextStyle(
+                          fontSize: 10.0,
                         ),
-                        new Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: new Text('Is this user?'),
-                        )
-                      ],
-                    )
-                  : new FloatingActionButton(
-                      backgroundColor:
-                          isNameInputed ? Colors.green : Colors.green[100],
-                      //icon: new Icon(Icons.navigate_next),
-                      onPressed: isNameInputed ? _gotoNext : null,
-                      mini: true,
-                      child: new Icon(Icons.navigate_next),
+                      ),
+                    );
+                  },
+                ).toList(),
+              )
+            ],
+          );
+        },
+      ));
+
+  Widget _createIdentityWidget() {
+    DateTime today = new DateTime.now();
+    String dateSlug =
+        "${today.year.toString()}-${today.month.toString().padLeft(2,'0')}-${today.day.toString().padLeft(2,'0')}";
+
+    Contribution c = model.contributions.firstWhere((c) =>
+        c.year == today.year && c.month == today.month && c.day == today.day);
+    int value = c.value ?? 0;
+
+    return new Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: new Center(
+        child: new Column(
+          children: <Widget>[
+            new CircleAvatar(
+              backgroundImage: new NetworkImage(
+                  'https://avatars.githubusercontent.com/${model.username}'),
+            ),
+            new Text(
+              model.username,
+              style: new TextStyle(
+                fontSize: 20.0,
+              ),
+            ),
+            value > 0
+                ? new Text(
+                    'Today\'s contribution is ${value}! 👍',
+                    style: new TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
                     ),
-            )
+                  )
+                : new Text(
+                    'Today is not contributed yet.❌',
+                    style: new TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
           ],
         ),
       ),
     );
-  }
-
-  void _onChanged(String inputString) {
-    setState(() {
-      isNameInputed = inputString.isNotEmpty;
-    });
-  }
-
-  void _onSubmitted(String _) => _gotoNext();
-
-  void _gotoNext() {
-//    Navigator.of(context).push(
-//          new MaterialPageRoute(
-//            builder: (BuildContext context) => new ConfirmPage(),
-//          ),
-//        );
-    Navigator.push(
-      context,
-      new PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (BuildContext context, _, __) => new Center(
-              child: new ConfirmPage(),
-            ),
-        transitionsBuilder:
-            (_, Animation<double> animation, __, Widget child) =>
-                new FadeTransition(
-                  opacity: animation,
-                  child: new RotationTransition(
-                    turns: new Tween<double>(
-                      begin: 0.5,
-                      end: 1.0,
-                    ).animate(
-                      animation,
-                    ),
-                    child: child,
-                  ),
-                ),
-      ),
-    );
-//    String username = _controller.text.toLowerCase();
-//
-//    _fetch(username).then((bool isValid) {
-//      setState(() {
-//        avatorUrl = 'https://avatars.githubusercontent.com/${username}';
-//        isValidUser = true;
-//      });
-//    });
-    //TODO: ユーザーが見つからない時のエラー処理
-  }
-
-  Future<bool> _fetch(String username) async {
-    final http.Response response =
-        await http.get('https://github.com/users/${username}/contributions');
-    if (response.statusCode != 200) {
-      return false;
-    }
-    //TODO: response.bodyを解析して、this.contributionsへ格納する
-    return true;
   }
 }
