@@ -20,7 +20,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
   _ConfirmPageState(this.username)
       : avatarUrl = 'https://avatars.githubusercontent.com/${username}';
 
-  static const iconWidth = 80.0; //TODO: Themeに移動する
+  static const circleSize = 80.0; //TODO: Themeに移動する
 
   @override
   Widget build(BuildContext context) => new Scaffold(
@@ -31,10 +31,16 @@ class _ConfirmPageState extends State<ConfirmPage> {
           child: new Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Image.network(
-                avatarUrl,
-                width: iconWidth,
-              ),
+              new Container(
+                  width: circleSize,
+                  height: circleSize,
+                  decoration: new BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: new DecorationImage(
+                          fit: BoxFit.fill,
+                          image: new NetworkImage(
+                            avatarUrl,
+                          )))),
               new Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
                 child: new Text(
