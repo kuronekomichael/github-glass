@@ -28,7 +28,6 @@ class _ContributionTile {
 
   bool isPresentMonth() {
     DateTime today = new DateTime.now();
-    print('Contrib ${year}-${month} <=> ${today.year}-${today.month}');
     return (year == today.year && month == today.month);
   }
 

@@ -40,12 +40,10 @@ class GitHubUser extends Model {
 
     // re-set
     newContributions.forEach((String date, int value) {
-      print(date);
       Match matched = dateRegex.firstMatch(date);
       if (matched == null) {
         throw new Exception('Error on setting to contibutions');
       }
-      print(matched);
       Contribution contribution = new Contribution(
         year: int.parse(matched.group(1)),
         month: int.parse(matched.group(2)),
