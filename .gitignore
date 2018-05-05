@@ -10,3 +10,10 @@ build/
 
 .idea/*
 !.idea/runConfigurations
+
+ios/fastlane/report.xml
+ios/*.certSigningRequest
+ios/*.p12
+ios/*.cer
+ios/Runner.app.dSYM.zip
+ios/Runner.ipa

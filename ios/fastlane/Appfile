@@ -1,0 +1,14 @@
+# The bundle identifier of your app
+app_identifier "io.tass.githubgrass" 
+
+# Your Apple email address
+apple_id "hardwarehacking@gmail.com"
+
+# iTunes Connect Team ID
+itc_team_id "217815986"
+
+# Developer Portal Team ID
+team_id "73J8ZXYZC6"
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
