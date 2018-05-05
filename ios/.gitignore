@@ -42,3 +42,11 @@ Icon?
 /ServiceDefinitions.json
 
 Pods/
+
+/fastlane/report.xml
+/*.certSigningRequest
+/*.mobileprovision
+/*.p12
+/*.cer
+/Runner.app.dSYM.zip
+/Runner.ipa
