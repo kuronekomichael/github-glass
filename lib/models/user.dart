@@ -20,7 +20,7 @@ class Contribution {
 class GitHubUser extends Model {
   String username;
   //Image image;
-  List<Contribution> contributions = List<Contribution>();
+  List<Contribution> contributions = <Contribution>[];
 
   final RegExp dateRegex = new RegExp('^(\\d+)[-_/](\\d+)[-_/](\\d+)\$');
 
