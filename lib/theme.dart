@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _primaryColor = 0xFF4CAF50;
+const _primaryColor = 0xFF4CAF50; // green
 const _grassColor = const MaterialColor(
   _primaryColor,
   const <int, Color>{
