@@ -18,7 +18,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
   bool isValidUser = true; //FIXME: 未実装
 
   _ConfirmPageState(this.username)
-      : avatarUrl = 'https://avatars.githubusercontent.com/${username}';
+      : avatarUrl = 'https://avatars.githubusercontent.com/$username';
 
   static const circleSize = 80.0; //TODO: Themeに移動する
 
@@ -32,15 +32,18 @@ class _ConfirmPageState extends State<ConfirmPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Container(
-                  width: circleSize,
-                  height: circleSize,
-                  decoration: new BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: new DecorationImage(
-                          fit: BoxFit.fill,
-                          image: new NetworkImage(
-                            avatarUrl,
-                          )))),
+                width: circleSize,
+                height: circleSize,
+                decoration: new BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: new DecorationImage(
+                    fit: BoxFit.fill,
+                    image: new NetworkImage(
+                      avatarUrl,
+                    ),
+                  ),
+                ),
+              ),
               new Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
                 child: new Text(
@@ -59,13 +62,13 @@ class _ConfirmPageState extends State<ConfirmPage> {
                 child: new FloatingActionButton(
                   backgroundColor:
                       isValidUser ? Colors.green : Colors.green[100],
-                  //icon: new Icon(Icons.navigate_next),
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(
-                        context,
-                        new MaterialPageRoute(
-                            builder: (context) => new MyHomePage()),
-                        (_) => false);
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => new MyHomePage()),
+                      (_) => false,
+                    );
                   },
                   mini: true,
                   child: new Icon(Icons.check),

@@ -1,9 +1,4 @@
 import 'package:scoped_model/scoped_model.dart';
-// avator icon url = https://avatars.githubusercontent.com/<username>
-//ex. https://avatars.githubusercontent.com/kuronekomichael
-
-// contribution data(json) = https://github.com/users/<username>/contributions
-//ex. https://github.com/users/kuronekomichael/contributions
 
 class Contribution {
   final int year;
@@ -14,13 +9,12 @@ class Contribution {
   Contribution({this.year, this.month, this.day, this.value});
 
   @override
-  String toString() => '${year}-${month}-${day}: ${value}';
+  String toString() => '$year-$month-$day: $value';
 }
 
 class GitHubUser extends Model {
   String username;
-  //Image image;
-  List<Contribution> contributions = <Contribution>[];
+  List<Contribution> contributions = [];
 
   final RegExp dateRegex = new RegExp('^(\\d+)[-_/](\\d+)[-_/](\\d+)\$');
 
@@ -31,14 +25,10 @@ class GitHubUser extends Model {
 
   void setIdentity(String newUsername, Map<String, int> newContributions) {
     username = newUsername;
-//    image = new Image.network(
-//      'https://avatars.githubusercontent.com/${username}',
-//    );
 
-    // all clear
+    // Clear all
     contributions.clear();
 
-    // re-set
     newContributions.forEach((String date, int value) {
       Match matched = dateRegex.firstMatch(date);
       if (matched == null) {
@@ -52,14 +42,6 @@ class GitHubUser extends Model {
       );
       contributions.add(contribution);
     });
-
-//    contributions.sort((c1, c2) {
-//      var r = c2.year.compareTo(c1.year);
-//      if (r != 0) return r;
-//      r = c2.month.compareTo(c1.month);
-//      if (r != 0) return r;
-//      return c2.day.compareTo(c1.day);
-//    });
 
     notifyListeners();
   }
