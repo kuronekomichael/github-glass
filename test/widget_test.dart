@@ -1,24 +1,33 @@
-// This is a basic Flutter widget test.
-// To perform an interaction with a widget in your test, use the WidgetTester utility that Flutter
-// provides. For example, you can send tap and scroll gestures. You can also use WidgetTester to
-// find child widgets in the widget tree, read text, and verify that the values of widget properties
-// are correct.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:github_grass/widgets/parts.dart';
 
 void main() {
-//  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-//    // Build our app and trigger a frame.
-//    await tester.pumpWidget(new MyApp());
-//
-//    // Verify that our counter starts at 0.
-//    expect(find.text('0'), findsOneWidget);
-//    expect(find.text('1'), findsNothing);
-//
-//    // Tap the '+' icon and trigger a frame.
-//    await tester.tap(find.byIcon(Icons.add));
-//    await tester.pump();
-//
-//    // Verify that our counter has incremented.
-//    expect(find.text('0'), findsNothing);
-//    expect(find.text('1'), findsOneWidget);
-//  });
+  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+    bool current = false;
+
+    // テスト対象のWidget
+    Widget widget = new MyFlipButton(
+        aText: 'オモテ',
+        bText: 'ウラ',
+        onPressed: () {
+          current = true;
+        });
+    await tester.pumpWidget(new MaterialApp(home: widget));
+
+    // 初期状態は'オモテ'を向いている
+    expect(current, isFalse);
+    expect(find.text('オモテ'), findsOneWidget);
+    expect(find.text('ウラ'), findsNothing); // 'ウラ'が存在しないことを確認
+
+    // FlipButtonをタップ
+    await tester.tap(find.byType(MyFlipButton));
+    // フレームを先に進める
+    await tester.pump();
+
+    // 状態が'ウラ'に変わっていることを確認
+    expect(current, isTrue);
+    expect(find.text('オモテ'), findsNothing);
+    expect(find.text('ウラ'), findsOneWidget); // 'オモテ'が存在しないことを確認
+  });
 }
